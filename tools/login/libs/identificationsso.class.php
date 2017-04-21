@@ -79,9 +79,15 @@ class identificationSso {
 			$token = !empty($headers[$this->auth_header]) ? $headers[$this->auth_header] : null;
 		}
 		// Dans le header Authorization ?
-		// @WARNING peut entrer en conflit avec un jeton BASIC AUTH
+		// @WARNING peut entrer en conflit avec un jeton Basic Auth
 		if ($token == null) {
-			$token = !empty($headers['Authorization']) ? $headers['Authorization'] : null;
+			if (!empty($headers['Authorization'])) {
+				// protection sommaire contre la pollution au Basic Auth
+				// @TODO valider cette stratégie
+				if (substr($headers['Authorization'], 0, 5) !== "Basic") {
+					$token = $headers['Authorization'];
+				}
+			}
 		}
 		// Dans $_COOKIE ?
 		if($token == null) {
